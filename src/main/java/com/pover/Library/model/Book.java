@@ -32,7 +32,6 @@ public class Book {
     @NotNull
     private boolean available = true;
 
-
     @ManyToMany
     @JoinTable(name = "books_genres",
     joinColumns = @JoinColumn(name = "book_id"),

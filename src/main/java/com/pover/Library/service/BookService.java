@@ -7,11 +7,8 @@ import com.pover.Library.model.Book;
 import com.pover.Library.model.Genre;
 import com.pover.Library.repository.BookRepository;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
