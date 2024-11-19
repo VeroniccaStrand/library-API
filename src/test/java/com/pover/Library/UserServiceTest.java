@@ -1,7 +1,7 @@
 package com.pover.Library;
 
-import com.pover.Library.JWT.JwtUtil;
 import com.pover.Library.dto.BasicUserProfileResponseDto;
+import com.pover.Library.dto.ExtendedUserProfileResponseDto;
 import com.pover.Library.dto.LoanResponseDto;
 import com.pover.Library.model.Loan;
 import com.pover.Library.model.User;
@@ -26,18 +26,12 @@ public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private JwtUtil jwtUtil;
-
     @InjectMocks
     private UserService userService;
 
     @Test
-    void testGetUserProfile_Success(){
-        String token = "valid.jwt.token";
+    void testGetUserProfile_Success() {
         String memberNumber = "200203090245";
-
-        when(jwtUtil.extractMemberNumber(token)).thenReturn(memberNumber);
 
         User mockUser = new User();
         mockUser.setFirst_name("John");
@@ -51,12 +45,9 @@ public class UserServiceTest {
         activeLoan.setReturnedDate(null);
         mockUser.setLoans(List.of(activeLoan));
 
-
-        when(jwtUtil.extractMemberNumber(token)).thenReturn(memberNumber);
-
         when(userRepository.findByMemberNumber(memberNumber)).thenReturn(Optional.of(mockUser));
 
-        BasicUserProfileResponseDto response = userService.getUserProfile(token);
+        ExtendedUserProfileResponseDto response = userService.getUserProfileByMemberNumber(memberNumber);
 
         assertNotNull(response);
         assertEquals("John", response.getFirst_name());
@@ -64,13 +55,11 @@ public class UserServiceTest {
         assertEquals("smith@smith.com", response.getEmail());
         assertNotNull(response.getActiveLoans());
         assertEquals(1, response.getActiveLoans().size());
+
         LoanResponseDto loanResponse = response.getActiveLoans().get(0);
         assertEquals(activeLoan.getLoan_date(), loanResponse.getLoan_date());
         assertEquals(activeLoan.getDue_date(), loanResponse.getDue_date());
 
-        verify(jwtUtil, times(1)).extractMemberNumber(token);
         verify(userRepository, times(1)).findByMemberNumber(memberNumber);
-
-
     }
 }

@@ -3,7 +3,6 @@ package com.pover.Library;
 import com.pover.Library.model.User;
 import com.pover.Library.model.enums.Role;
 import com.pover.Library.repository.UserRepository;
-import com.pover.Library.JWT.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

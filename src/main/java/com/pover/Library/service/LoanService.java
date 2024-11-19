@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class LoanService {
+public class
+LoanService {
 
     private final LoanRepository loanRepository;
     private final BookRepository bookRepository;
