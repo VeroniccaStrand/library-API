@@ -1,32 +1,29 @@
 package com.pover.Library.controller;
 
 import com.pover.Library.JWT.JwtUtil;
-import com.pover.Library.dto.*;
+import com.pover.Library.dto.AdminRequestDto;
+import com.pover.Library.dto.AdminResponseDto;
 
+import com.pover.Library.dto.ResponseAdminLoginDto;
 import com.pover.Library.model.Admin;
 import com.pover.Library.service.AdminService;
-import com.pover.Library.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin")
-@Validated
+@RequestMapping("/api/admin")
 public class AdminController {
     private final AdminService adminService;
     private final JwtUtil jwtUtil;
-    private final UserService userService;
 
-    public AdminController(AdminService adminService, JwtUtil jwtUtil, UserService userService){
+    public AdminController(AdminService adminService, JwtUtil jwtUtil){
         this.adminService = adminService;
         this.jwtUtil = jwtUtil;
-        this.userService = userService;
     }
 
 
@@ -58,10 +55,23 @@ public class AdminController {
         if(admin == null){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        String token = jwtUtil.generateToken(admin.getAdmin_id(),admin.getRole(), admin.getUsername(), null);
+        String token = jwtUtil.generateToken(admin.getAdmin_id(),admin.getRole(), admin.getUsername(),null);
 
         ResponseAdminLoginDto responseAdminLoginDto = new ResponseAdminLoginDto(token);
         return new ResponseEntity<>(responseAdminLoginDto, HttpStatus.OK);
+    }
+    @Operation(summary = "Log out Admin", description = "Logs out the admin by invalidating the token")
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7); // Extrahera token
+            boolean isLoggedOut = adminService.logout(token); // Anropar AdminService för att hantera logout
+
+            if (isLoggedOut) {
+                return new ResponseEntity<>("Successfully logged out", HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>("Invalid logout request", HttpStatus.BAD_REQUEST);
     }
 
    // @DeleteMapping("/delete/{id}")
@@ -69,5 +79,6 @@ public class AdminController {
       //  AdminResponseDto adminResponseDto = adminService.deleteAdminById(id, currentAdmin);
         //return new ResponseEntity<>(adminResponseDto, HttpStatus.OK);
     //}
+
 
 }

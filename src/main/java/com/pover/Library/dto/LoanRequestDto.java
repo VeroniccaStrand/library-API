@@ -18,7 +18,6 @@ public class LoanRequestDto {
     @NotNull
     private Long userId;
 
-    @NotNull
     private LocalDate due_date;
 
     private LocalDate returned_date;

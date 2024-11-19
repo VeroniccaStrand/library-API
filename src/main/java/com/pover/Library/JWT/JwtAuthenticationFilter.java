@@ -1,6 +1,6 @@
 package com.pover.Library.JWT;
 
-import com.pover.Library.service.AdminService;
+import com.pover.Library.model.enums.Role;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,41 +21,52 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final AdminService adminService;
 
     @Autowired
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, AdminService adminService) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        this.adminService = adminService;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+
         final String header = request.getHeader("Authorization");
+
 
         if (header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = header.substring(7);
-        String role = jwtUtil.extractAllClaims(token).get("role", String.class);
-        String username = jwtUtil.extractUsername(token);
-        String memberNumber = jwtUtil.extractMemberNumber(token);
 
-        if (username != null && jwtUtil.validateToken(token, username, null)) {
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    username, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } else if (memberNumber != null && jwtUtil.validateToken(token, null, memberNumber)) {
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    memberNumber, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = header.substring(7);
+
+        try {
+
+            Claims claims = jwtUtil.extractAllClaims(token);
+            String username = claims.get("username", String.class);
+            String memberNumber = claims.get("member_number", String.class);
+            Role role = Role.valueOf(claims.get("role", String.class));
+
+
+            if (jwtUtil.validateToken(token, username, memberNumber)) {
+
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        username != null ? username : memberNumber,
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role.name()))
+                );
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+
+        } catch (Exception e) {
+
+            System.err.println("JWT Token Validation Error: " + e.getMessage());
         }
+
 
         filterChain.doFilter(request, response);
     }

@@ -29,6 +29,14 @@ public class LoanService {
         this.userRepository = userRepository;
     }
 
+    public List<LoanResponseDto> getAllLoans() {
+        List<Loan> loans = loanRepository.findAll();
+        return loans.stream()
+                .map(LoanResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+
     public LoanResponseDto getLoanById(Long id) {
         Loan loan = loanRepository.findById(id).orElseThrow(()  -> new IllegalArgumentException("Loan not found"));
         return new LoanResponseDto(loan);
@@ -52,7 +60,7 @@ public class LoanService {
         loan.setBook(book);
         loan.setUser(user);
         loan.setLoan_date(LocalDate.now());
-        loan.setDue_date(loanRequestDto.getDue_date());
+        loan.setDue_date(LocalDate.now().plusWeeks(5));
         loan.setReturnedDate(null);
         loanRepository.save(loan);
 
@@ -85,29 +93,12 @@ public class LoanService {
         return new LoanResponseDto(loan);
     }
 
-//    @Transactional
-//    public LoanResponseDto updateLoanDueDate(Long loanId, LocalDate newDueDate) {
-//
-//        Loan loan = loanRepository.findById(loanId).orElseThrow(() -> new IllegalArgumentException("Loan not found"));
-//
-//        if (!newDueDate.isAfter(loan.getDue_date())) {
-//            throw new IllegalArgumentException("Please make sure that your new due date is after current due date.");
-//        }
-//
-//        loan.setDue_date(newDueDate);
-//        loanRepository.save(loan);
-//
-//        return new LoanResponseDto(loan);
-//    }
 
     public List<LoanResponseDto> getUserActiveLoans(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         List<Loan> activeLoans = loanRepository.findByUserAndReturnedDateIsNull(user);
 
-//        if (activeLoans == null) {
-//            activeLoans = new ArrayList<>();
-//        }
 
         return activeLoans.stream()
                 .map(LoanResponseDto::new)

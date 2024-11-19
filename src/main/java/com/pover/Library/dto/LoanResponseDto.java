@@ -16,12 +16,14 @@ public class LoanResponseDto {
     private Book book;
     private LocalDate loan_date;
     private LocalDate due_date;
+    private User user;
 
     public LoanResponseDto(Loan loan) {
         this.loan_id = loan.getLoan_id();
         this.book = loan.getBook();
         this.loan_date = loan.getLoan_date();
         this.due_date = loan.getDue_date();
+        this.user = loan.getUser();
     }
 
 }

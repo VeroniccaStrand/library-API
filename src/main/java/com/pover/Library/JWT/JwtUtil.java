@@ -26,8 +26,6 @@ public class JwtUtil {
     }
 
 
-
-
     public String generateToken(Long id, Role role, String username, String memberNumber) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", id);
@@ -49,19 +47,31 @@ public class JwtUtil {
     }
 
 
-
     public Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
+
 
     public String extractUsername(String token) {
-
         return extractAllClaims(token).get("username", String.class);
     }
+
+
 
     public String extractMemberNumber(String token) {
         return extractAllClaims(token).get("member_number", String.class);
     }
+
+
+    public Role extractRole(String token) {
+        String roleString = extractAllClaims(token).get("role", String.class);
+        return Role.valueOf(roleString);
+    }
+
 
     public boolean validateToken(String token, String username, String memberNumber) {
         final String tokenUsername = extractUsername(token);
@@ -73,7 +83,9 @@ public class JwtUtil {
         return (isUsernameValid || isMemberNumberValid) && !isTokenExpired(token);
     }
 
+
     private boolean isTokenExpired(String token) {
-        return extractAllClaims(token).getExpiration().before(new Date());
+        Date expiration = extractAllClaims(token).getExpiration();
+        return expiration != null && expiration.before(new Date());
     }
 }

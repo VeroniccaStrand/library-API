@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class AdminProfileResponseDto {
+public class ExtendedUserProfileResponseDto {
 
     private String first_name;
     private String last_name;
@@ -16,7 +16,7 @@ public class AdminProfileResponseDto {
     private String member_number;
     private List<LoanResponseDto> activeLoans;
 
-    public AdminProfileResponseDto(String first_name, String last_name, String email, String password, String member_number, List<LoanResponseDto> activeLoans) {
+    public ExtendedUserProfileResponseDto(String first_name, String last_name, String email, String password, String member_number, List<LoanResponseDto> activeLoans) {
         this.first_name = first_name;
         this.last_name = last_name;
         this.email = email;

@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserProfileRequestDto {
+public class BasicUserProfileRequestDto {
     @NotBlank
     private String first_name;
 
