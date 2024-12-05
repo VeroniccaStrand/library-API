@@ -122,7 +122,8 @@ INSERT INTO users (first_name, last_name, email, member_number, password, role) 
                                                                     ('Maria', 'Svensson', 'maria.svensson@email.com', 'M20230003', '1234', 'USER'),
                                                                     ('Johan', 'Johansson', 'johan.johansson@email.com', 'M20230004', '1234', 'USER'),
                                                                     ('Eva', 'Larsson', 'eva.larsson@email.com', 'M20230005', '1234', 'USER'),
-                                                                    ('user1', 'superuser', 'superuser@user.com', '200203040345', '$2a$10$nHC0aQP7cGKP2O5aWIrMKOVe1cdST2RG9BxaE1GLk44jQn3fy0Mka', 'USER');
+                                                                    ('user1', 'superuser', 'superuser@user.com', '200203040345', '$2a$10$nHC0aQP7cGKP2O5aWIrMKOVe1cdST2RG9BxaE1GLk44jQn3fy0Mka', 'USER'),
+                                                                    ('pew', 'meow', 'pew@gmail.com', '199302053445', '$2a$10$mHjhvQIrukV.KD5ejRyyiOorCsGoRLIcRsxO5cpr9sFF3TVO.DQNC', 'USER');
 
 -- Populate loans
 INSERT INTO loans (book_id, user_id, loan_date, due_date, returned_date) VALUES
