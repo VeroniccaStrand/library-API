@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -35,13 +36,17 @@ public class User {
     private String memberNumber;
 
     @NotNull
+    @Column(name = "personal_number", unique = true)
+    private String personalNumber;
+
+    @NotNull
     @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Loan> loans;
 }

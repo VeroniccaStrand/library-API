@@ -1,7 +1,6 @@
 package com.pover.Library.controller;
 
 import com.pover.Library.dto.*;
-import com.pover.Library.model.enums.Role;
 import com.pover.Library.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -32,7 +31,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<UserResponseDto> create(@Valid @RequestBody UserRequestDto userRequestDto) {
+    public ResponseEntity<UserResponseDto> createUser (@Valid @RequestBody UserRequestDto userRequestDto) {
         UserResponseDto userResponseDto = userService.createUser(userRequestDto);
         return new ResponseEntity<>(userResponseDto, HttpStatus.CREATED);
     }
@@ -105,35 +104,25 @@ public class UserController {
     )
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
-        String memberNumber = credentials.get("member_number");
+        String personalNumber = credentials.get("personal_number");
         String password = credentials.get("password");
-        String roleString = credentials.get("role");
 
-        if (memberNumber == null || password == null || roleString == null) {
+        if (personalNumber == null || password == null) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Missing required fields: member number, password, and/or role");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
-        try {
-            Role requiredRole = Role.valueOf(roleString.toUpperCase());
-            Optional<String> token = userService.authenticateUser(memberNumber, password, requiredRole);
+        Optional<String> token = userService.authenticateUser(personalNumber, password);
 
-            return token
-                    .map(t -> {
-                        Map<String, String> response = new HashMap<>();
-                        response.put("token", t);
-                        return ResponseEntity.ok(response);
-                    })
-                    .orElseGet(() -> {
-                        Map<String, String> errorResponse = new HashMap<>();
-                        errorResponse.put("error", "Invalid credentials or role mismatch");
-                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-                    });
-        } catch (IllegalArgumentException e) {
+        if (token.isPresent()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token.get());
+            return ResponseEntity.ok(response);
+        } else {
             Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Invalid role specified: " + roleString);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            errorResponse.put("error", "Invalid credentials or role");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 

@@ -7,6 +7,7 @@ import com.pover.Library.repository.AdminRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.pover.Library.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,12 @@ public class AdminService {
 
     @Autowired
     private UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     private final AdminRepository adminRepository;
-    public AdminService(AdminRepository adminRepository) {
+    public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder) {
         this.adminRepository = adminRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public AdminResponseDto createAdmin(@Valid  AdminRequestDto adminRequestDto) {
@@ -34,8 +37,12 @@ public class AdminService {
         }
         Admin admin = new Admin();
         admin.setUsername(adminRequestDto.getUsername());
-        admin.setPassword(adminRequestDto.getPassword());
+        // admin.setPassword(adminRequestDto.getPassword());
         admin.setRole(adminRequestDto.getRole());
+
+        String encodedPassword = passwordEncoder.encode(adminRequestDto.getPassword());
+        admin.setPassword(encodedPassword);
+
         adminRepository.save(admin);
 
         return new AdminResponseDto(admin.getAdmin_id(), admin.getUsername(), admin.getRole());

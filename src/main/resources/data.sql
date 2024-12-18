@@ -116,14 +116,15 @@ INSERT INTO books_genres (book_id, genre_id) VALUES
                                                  (10, 4); -- Mrs. Dalloway: Classic
 
 -- Populate users
-INSERT INTO users (first_name, last_name, email, member_number, password, role) VALUES
-                                                                    ('Anna', 'Andersson', 'anna.andersson@email.com', 'M20230001', '1234', 'USER'),
-                                                                    ('Erik', 'Eriksson', 'erik.eriksson@email.com', 'M20230002', '1234', 'USER'),
-                                                                    ('Maria', 'Svensson', 'maria.svensson@email.com', 'M20230003', '1234', 'USER'),
-                                                                    ('Johan', 'Johansson', 'johan.johansson@email.com', 'M20230004', '1234', 'USER'),
-                                                                    ('Eva', 'Larsson', 'eva.larsson@email.com', 'M20230005', '1234', 'USER'),
-                                                                    ('user1', 'superuser', 'superuser@user.com', '200203040345', '$2a$10$nHC0aQP7cGKP2O5aWIrMKOVe1cdST2RG9BxaE1GLk44jQn3fy0Mka', 'USER'),
-                                                                    ('pew', 'meow', 'pew@gmail.com', '199302053445', '$2a$10$mHjhvQIrukV.KD5ejRyyiOorCsGoRLIcRsxO5cpr9sFF3TVO.DQNC', 'USER');
+INSERT INTO users (first_name, last_name, email, member_number, personal_number, password, role) VALUES
+                                                                    ('Anna', 'Andersson', 'anna.andersson@email.com', 'YP0987714998', '199308283456', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'USER'),
+                                                                    ('Erik', 'Eriksson', 'erik.eriksson@email.com', 'CA0679571394', '197612036712', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'USER'),
+                                                                    ('Maria', 'Svensson', 'maria.svensson@email.com', 'MI0197472855', '198006121223', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'USER'),
+                                                                    ('Johan', 'Johansson', 'johan.johansson@email.com', 'QB0167173514', '200202030245', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'USER'),
+                                                                    ('Eva', 'Larsson', 'eva.larsson@email.com', 'DZ0020259864', '199302051567', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'USER'),
+                                                                    ('user1', 'superuser', 'superuser@user.com', 'VO0077517336', '200203040345', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'USER'),
+                                                                    ('pew', 'meow', 'pew@gmail.com', 'F3456789012', 'LQ0024178599', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'USER');
+
 
 -- Populate loans
 INSERT INTO loans (book_id, user_id, loan_date, due_date, returned_date) VALUES

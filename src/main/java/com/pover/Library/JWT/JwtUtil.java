@@ -34,8 +34,8 @@ public class JwtUtil {
     // skapar en JWT
     public String generateToken(Long id, Role role, String username, String memberNumber) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("id", id);
-        claims.put("role", role.ordinal()); // hämtar det numeriska indexet
+        //claims.put("id", id);
+        claims.put("role", role.name());
 
         String subject = username != null ? username : memberNumber;
 

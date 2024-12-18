@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,42 +26,32 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-//    public Optional<String> authenticateUser(String memberNumber, String password) {
-//        Optional<User> existingUser = userRepository.findByMemberNumber(memberNumber);
-//
-//        if (existingUser.isPresent() && passwordEncoder.matches(password, existingUser.get().getPassword())) {
-//            String token = jwtUtil.generateToken(existingUser.get().getUser_id(), existingUser.get().getRole(), null, existingUser.get().getMemberNumber());
-//            return Optional.of(token);
-//        }
-//        return Optional.empty();
-//    }
+    public Optional<String> authenticateUser(String personalNumber, String password) {
+        Optional<User> existingUser = userRepository.findByPersonalNumber(personalNumber);
 
-    public Optional<String> authenticateUser(String memberNumber, String password, Role requiredRole) {
-        Optional<User> existingUser = userRepository.findByMemberNumber(memberNumber);
-
-        if (existingUser.isPresent()) {
-            User user = existingUser.get();
-
-            // Check password
-            if (passwordEncoder.matches(password, user.getPassword())) {
-                // Check role
-                if (user.getRole() == requiredRole) {
-                    String token = jwtUtil.generateToken(user.getUser_id(), user.getRole(), null, user.getMemberNumber());
-                    return Optional.of(token);
-                } else {
-                    throw new IllegalArgumentException("User does not have the required role: " + requiredRole);
-                }
-            }
+        if (existingUser.isPresent() && passwordEncoder.matches(password, existingUser.get().getPassword())) {
+            String token = jwtUtil.generateToken(existingUser.get().getUser_id(), existingUser.get().getRole(), null, existingUser.get().getMemberNumber());
+            return Optional.of(token);
         }
-
         return Optional.empty();
     }
-
-
 
     public UserResponseDto getUserById(Long user_id) {
         User user = userRepository.findById(user_id).orElseThrow(() -> new RuntimeException("User not found"));
         return new UserResponseDto(user);
+    }
+
+    private String generateMemberNumber() {
+        SecureRandom random = new SecureRandom();
+        String memberNumber;
+        do {
+            String letter1 = String.valueOf((char) ('A' + random.nextInt(26)));
+            String letter2 = String.valueOf((char) ('A' + random.nextInt(26)));
+            String digits = String.format("%010d", random.nextInt(1_000_000_000));
+            memberNumber = letter1 + letter2 + digits;
+        } while (userRepository.existsByMemberNumber(memberNumber));
+
+        return memberNumber;
     }
 
 
@@ -74,7 +65,13 @@ public class UserService {
         user.setFirst_name(userRequestDto.getFirst_name());
         user.setLast_name(userRequestDto.getLast_name());
         user.setEmail(userRequestDto.getEmail());
-        user.setMemberNumber(userRequestDto.getMember_number());
+        user.setPersonalNumber(userRequestDto.getPersonal_number());
+
+        String memberNumber = userRequestDto.getMember_number();
+        if (memberNumber == null || memberNumber.trim().isEmpty()) {
+            memberNumber = generateMemberNumber();
+        }
+        user.setMemberNumber(memberNumber);
 
         String encodedPassword = passwordEncoder.encode(userRequestDto.getPassword());
         System.out.println("Encoded password: " + encodedPassword);
@@ -104,7 +101,7 @@ public class UserService {
     public List<UserResponseDto> getUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(user-> new UserResponseDto(user))
+                .map(UserResponseDto::new)
                 .collect(Collectors.toList());
 
     }
