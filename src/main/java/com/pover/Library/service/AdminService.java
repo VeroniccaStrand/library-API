@@ -1,20 +1,20 @@
 package com.pover.Library.service;
 
+import com.pover.Library.JWT.JwtUtil;
 import com.pover.Library.dto.AdminRequestDto;
 import com.pover.Library.dto.AdminResponseDto;
 import com.pover.Library.model.Admin;
+import com.pover.Library.model.enums.Role;
 import com.pover.Library.repository.AdminRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.pover.Library.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.pover.Library.model.User;
 
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -22,13 +22,14 @@ import java.util.stream.Collectors;
 public class AdminService {
 
     @Autowired
-    private UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-
     private final AdminRepository adminRepository;
-    public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder) {
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+
+    public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     public AdminResponseDto createAdmin(@Valid  AdminRequestDto adminRequestDto) {
@@ -38,7 +39,11 @@ public class AdminService {
         Admin admin = new Admin();
         admin.setUsername(adminRequestDto.getUsername());
         // admin.setPassword(adminRequestDto.getPassword());
-        admin.setRole(adminRequestDto.getRole());
+        if (adminRequestDto.getRole() == null) {
+            admin.setRole(Role.valueOf("LIBRARIAN"));
+        } else {
+            admin.setRole(adminRequestDto.getRole());
+        }
 
         String encodedPassword = passwordEncoder.encode(adminRequestDto.getPassword());
         admin.setPassword(encodedPassword);
@@ -63,20 +68,17 @@ public class AdminService {
     }
 
 
+    public Optional<String> authenticate(String username, String password) {
+        Optional<Admin> admin = adminRepository.findByUsername(username);
 
-    public Admin authenticate(@NotNull(message = "Username is required and unique") String username, @NotNull(message = "Password is required") String password) {
-        Admin admin = adminRepository.findByUsername(username);
-        if(admin != null && admin.getPassword().equals(password)){
-            return admin;
+        if (admin.isPresent() && passwordEncoder.matches(password, admin.get().getPassword())){
+            String token = jwtUtil.generateToken(admin.get().getAdmin_id(), admin.get().getRole(), admin.get().getUsername(), null);
+            return Optional.of(token);
         }
-        return null;
+        return Optional.empty();
     }
     public boolean logout(String token) {
         return token != null && !token.isEmpty();
     }
 
-    public User getUserByMemberNumber(String memberNumber) {
-        return userRepository.findByMemberNumber(memberNumber)
-                .orElseThrow(() -> new RuntimeException("User not found with member number: " + memberNumber));
-    }
 }

@@ -11,7 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -23,34 +26,47 @@ public class AdminController {
     }
 
     @Operation(summary = "Create a new Admin", description = "Creates a new admin user with a unique username")
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<AdminResponseDto> create(@Valid @RequestBody AdminRequestDto adminRequestDto) {
         AdminResponseDto adminResponseDto = adminService.createAdmin(adminRequestDto);
         return new ResponseEntity<>(adminResponseDto, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Get all Admins", description = "Get all admins incl librarians")
-    @GetMapping("/get")
+    @GetMapping
     public ResponseEntity<List<AdminResponseDto>> getAll() {
         List<AdminResponseDto> admins = adminService.getAdmins();
         return new ResponseEntity<>(admins, HttpStatus.OK);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<AdminResponseDto> getById(@PathVariable long id) {
         AdminResponseDto adminResponseDto = adminService.getAdminById(id);
         return new ResponseEntity<>(adminResponseDto, HttpStatus.OK);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AdminRequestDto adminRequestDto) {
-        Admin admin = adminService.authenticate(adminRequestDto.getUsername(), adminRequestDto.getPassword());
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+        String username = credentials.get("username");
+        String password = credentials.get("password");
 
-        if (admin == null) {
-            return new ResponseEntity<>("Invalid credentials", HttpStatus.UNAUTHORIZED);
+        if (username == null || password == null) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Missing required fields: username, password");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
-        return new ResponseEntity<>("Login successful", HttpStatus.OK);
+        Optional<String> token = adminService.authenticate(username, password);
+
+        if (token.isPresent()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token.get());
+            return ResponseEntity.ok(response);
+        } else {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid credentials or role");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
     }
 
     @Operation(summary = "Log out Admin", description = "Logs out the admin")

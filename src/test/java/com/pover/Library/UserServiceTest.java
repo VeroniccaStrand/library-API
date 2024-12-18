@@ -31,13 +31,13 @@ public class UserServiceTest {
 
     @Test
     void testGetUserProfile_Success() {
-        String memberNumber = "200203090245";
+        String personalNumber = "200203090245";
 
         User mockUser = new User();
         mockUser.setFirst_name("John");
         mockUser.setLast_name("Smith");
         mockUser.setEmail("smith@smith.com");
-        mockUser.setMemberNumber(memberNumber);
+        mockUser.setMemberNumber(personalNumber);
 
         Loan activeLoan = new Loan();
         activeLoan.setLoan_date(LocalDate.now().minusDays(10));
@@ -45,9 +45,9 @@ public class UserServiceTest {
         activeLoan.setReturnedDate(null);
         mockUser.setLoans(List.of(activeLoan));
 
-        when(userRepository.findByMemberNumber(memberNumber)).thenReturn(Optional.of(mockUser));
+        when(userRepository.findByPersonalNumber(personalNumber)).thenReturn(Optional.of(mockUser));
 
-        ExtendedUserProfileResponseDto response = userService.getUserProfileByMemberNumber(memberNumber);
+        ExtendedUserProfileResponseDto response = userService.getUserProfileByPersonalNumber(personalNumber);
 
         assertNotNull(response);
         assertEquals("John", response.getFirst_name());
@@ -60,6 +60,6 @@ public class UserServiceTest {
         assertEquals(activeLoan.getLoan_date(), loanResponse.getLoan_date());
         assertEquals(activeLoan.getDue_date(), loanResponse.getDue_date());
 
-        verify(userRepository, times(1)).findByMemberNumber(memberNumber);
+        verify(userRepository, times(1)).findByPersonalNumber(personalNumber);
     }
 }

@@ -39,20 +39,19 @@ public class JwtUtil {
     // skapar en JWT
     public String generateToken(Long id, Role role, String username, String memberNumber) {
         Map<String, Object> claims = new HashMap<>();
-        //claims.put("id", id);
+        claims.put("id", id);
         claims.put("role", role.name());
-        claims.put("member_number", memberNumber);
-
-        String subject = username != null ? username : memberNumber;
-
-        if (subject == null) {
-            throw new IllegalArgumentException("Either username or member number must be provided.");
+        if (username != null) {
+            claims.put("username", username);
+        }
+        if (memberNumber != null) {
+            claims.put("member_number", memberNumber);
         }
 
         // signerar och bygger token med HS256
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(subject)
+                .setSubject(username != null ? username : memberNumber)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -87,7 +86,7 @@ public class JwtUtil {
         boolean isUsernameValid = (tokenUsername != null && tokenUsername.equals(username));
         boolean isMemberNumberValid = (tokenMemberNumber != null && tokenMemberNumber.equals(memberNumber));
         log.info("Extracted username: {}", tokenUsername);
-        log.info("Extracted username: {}", tokenMemberNumber);
+        log.info("Extracted mamber_number: {}", tokenMemberNumber);
         return (isUsernameValid || isMemberNumberValid) && !isTokenExpired(token);
     }
 
@@ -103,9 +102,14 @@ public class JwtUtil {
     }
 
     public String extractUsername(String token) {
-        return extractAllClaims(token).get("username", String.class);
+        try {
+            Claims claims = extractAllClaims(token);
+            return claims.getSubject();
+        } catch (Exception e) {
+            log.error("Error extracting username from token: {}", e.getMessage());
+            return null;
+        }
     }
-
 
     private boolean isTokenExpired(String token) {
         Date expiration = extractAllClaims(token).getExpiration();

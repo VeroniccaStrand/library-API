@@ -158,8 +158,8 @@ public class UserService {
 
     // USER PROFILE CHECK AND UPDATE BY ADMIN
     // can be accessed only by admin
-    public ExtendedUserProfileResponseDto getUserProfileByMemberNumber(String memberNumber) {
-        User user = userRepository.findByMemberNumber(memberNumber)
+    public ExtendedUserProfileResponseDto getUserProfileByPersonalNumber(String personalNumber) {
+        User user = userRepository.findByPersonalNumber(personalNumber)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         List<LoanResponseDto> activeLoans = user.getLoans().stream()
@@ -167,19 +167,24 @@ public class UserService {
                 .map(LoanResponseDto::new)
                 .collect(Collectors.toList());
 
-        return new ExtendedUserProfileResponseDto(user.getFirst_name(), user.getLast_name(), user.getEmail(), user.getPassword(), user.getMemberNumber(), activeLoans);
+        return new ExtendedUserProfileResponseDto(user, activeLoans);
     }
 
     @Transactional
-    public ExtendedUserProfileResponseDto updateUserProfileByMemberNumber(ExtendedUserProfileRequestDto extendedUserProfileRequestDto) {
+    public ExtendedUserProfileResponseDto updateUserProfileByPersonalNumber(ExtendedUserProfileRequestDto extendedUserProfileRequestDto) {
 
 
+        String personalNumber = extendedUserProfileRequestDto.getPersonal_number();
         String memberNumber = extendedUserProfileRequestDto.getMember_number();
 
-        User user = userRepository.findByMemberNumber(memberNumber)
+        User user = userRepository.findByPersonalNumber(personalNumber)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (!memberNumber.equals(user.getMemberNumber())) {
+        if (!user.getPersonalNumber().equals(personalNumber)) {
+            throw new IllegalArgumentException("Personal number cannot be changed.");
+        }
+
+        if (user.getMemberNumber() != null && !user.getMemberNumber().equals(memberNumber)) {
             throw new IllegalArgumentException("Member number cannot be changed.");
         }
 
@@ -203,8 +208,8 @@ public class UserService {
         }
 
         if (extendedUserProfileRequestDto.getPassword() != null && !extendedUserProfileRequestDto.getPassword().isBlank()) {
-            if (!extendedUserProfileRequestDto.getPassword().matches("^\\d{4}$")) {
-                throw new IllegalArgumentException("Password must be 4 digits");
+            if (!extendedUserProfileRequestDto.getPassword().matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
+                throw new IllegalArgumentException("Password must be at least 8 characters with upper/lowercase letters, a number, and a special character.");
             }
             String hashedPassword = passwordEncoder.encode(extendedUserProfileRequestDto.getPassword());
             user.setPassword(hashedPassword);
@@ -218,7 +223,7 @@ public class UserService {
                 .map(LoanResponseDto::new)
                 .collect(Collectors.toList());
 
-        return new ExtendedUserProfileResponseDto(user.getFirst_name(), user.getLast_name(), user.getEmail(), user.getPassword(), user.getMemberNumber(), activeLoans);
+        return new ExtendedUserProfileResponseDto(user, activeLoans);
     }
 
     // LOGOUT

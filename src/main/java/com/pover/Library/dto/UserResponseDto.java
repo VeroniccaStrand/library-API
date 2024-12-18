@@ -13,6 +13,7 @@ public class UserResponseDto {
     private String first_name;
     private String last_name;
     private String member_number;
+    private String personal_number;
     private Role role;
 
     public UserResponseDto(User user) {
@@ -20,6 +21,7 @@ public class UserResponseDto {
         this.first_name = user.getFirst_name();
         this.last_name = user.getLast_name();
         this.member_number = user.getMemberNumber();
+        this.personal_number = user.getPersonalNumber();
         this.role = Role.USER;
 
     }

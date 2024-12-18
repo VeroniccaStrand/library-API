@@ -80,7 +80,7 @@ public class UserController {
 
         if (personalNumber == null || password == null) {
             Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Missing required fields: member number, password, and/or role");
+            errorResponse.put("error", "Missing required fields: member number, password");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 

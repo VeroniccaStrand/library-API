@@ -22,8 +22,20 @@ public class ExtendedUserProfileRequestDto {
     @NotBlank(groups = CreateValidationGroup.class)
     private String email;
 
-    @Pattern(regexp = "^\\d{4}$", message = "Password must be 4 digits", groups = {CreateValidationGroup.class, UpdateValidationGroup.class})
+    @NotBlank(message = "Password is required")
+    @Pattern(
+            regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            message = "Password must be at least 8 characters with upper/lowercase letters, a number, and a special character."
+    )
     private String password;
+
+    @NotBlank(message = "Personal number is required")
+    @Pattern(
+            regexp = "^(19|20)\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])\\d{4}$",
+            message = "Please enter twelve digits"
+    )
+    private String personal_number;
+
 
     private String member_number;
 

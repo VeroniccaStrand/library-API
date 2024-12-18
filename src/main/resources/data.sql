@@ -123,7 +123,7 @@ INSERT INTO users (first_name, last_name, email, member_number, personal_number,
                                                                     ('Johan', 'Johansson', 'johan.johansson@email.com', 'QB0167173514', '200202030245', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'USER'),
                                                                     ('Eva', 'Larsson', 'eva.larsson@email.com', 'DZ0020259864', '199302051567', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'USER'),
                                                                     ('user1', 'superuser', 'superuser@user.com', 'VO0077517336', '200203040345', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'USER'),
-                                                                    ('pew', 'meow', 'pew@gmail.com', 'F3456789012', 'LQ0024178599', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'USER');
+                                                                    ('pew', 'meow', 'pew@gmail.com', 'F3456789012', '199202031223', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'USER');
 
 
 -- Populate loans
@@ -136,6 +136,6 @@ INSERT INTO loans (book_id, user_id, loan_date, due_date, returned_date) VALUES
                                                                              (6, 1, '2023-12-25', '2024-01-25', '2024-01-23');
 -- Populate admins
 INSERT INTO admins (username, password, role) VALUES
-                                                  ('admin', 'admin123', 'ADMIN'),
-                                                  ('lisa', 'lisa123', 'LIBRARIAN'),
-                                                  ('lars', 'lars123', 'LIBRARIAN');
+                                                  ('admin', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'ADMIN'),
+                                                  ('lisa', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'LIBRARIAN'),
+                                                  ('lars', '$2a$10$G4LHLg35OhgzBhPm/cVS0.UYf9Ww8uZXNcrMlE7FkUl6G4R6pKjhG', 'LIBRARIAN');
