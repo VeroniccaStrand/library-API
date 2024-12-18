@@ -7,6 +7,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -16,6 +19,8 @@ import java.util.Map;
 // Hanterar JWT-operationer som att skapa, validera, extrahera data från tokens
 @Component
 public class JwtUtil {
+    private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
+
 
     private final SecretKey secretKey;
     private final long jwtExpirationMs;
@@ -36,6 +41,7 @@ public class JwtUtil {
         Map<String, Object> claims = new HashMap<>();
         //claims.put("id", id);
         claims.put("role", role.name());
+        claims.put("member_number", memberNumber);
 
         String subject = username != null ? username : memberNumber;
 
@@ -63,19 +69,43 @@ public class JwtUtil {
     }
 
     // är token giltig? tillhör token rätt användare?
-    public boolean isTokenValid(String token, String username) {
-        try {
-            final String tokenUsername = extractAllClaims(token).getSubject();
-            return username.equals(tokenUsername) && !isTokenExpired(token);
-        } catch (Exception e) {
-            return false;
-        }
+//    public boolean isTokenValid(String token, String username) {
+//        try {
+//            final String tokenUsername = extractAllClaims(token).getSubject();
+//            log.info("Extracted username: {}", tokenUsername);
+//            return username.equals(tokenUsername) && !isTokenExpired(token);
+//        } catch (Exception e) {
+//            log.error("Token validation failed: {}", e.getMessage());
+//            return false;
+//        }
+//    }
+
+    public boolean validateToken(String token, String username, String memberNumber) {
+        final String tokenUsername = extractUsername(token);
+        final String tokenMemberNumber = extractMemberNumber(token);
+
+        boolean isUsernameValid = (tokenUsername != null && tokenUsername.equals(username));
+        boolean isMemberNumberValid = (tokenMemberNumber != null && tokenMemberNumber.equals(memberNumber));
+        log.info("Extracted username: {}", tokenUsername);
+        log.info("Extracted username: {}", tokenMemberNumber);
+        return (isUsernameValid || isMemberNumberValid) && !isTokenExpired(token);
+    }
+
+
+
+    public String extractMemberNumber(String token) {
+        return extractAllClaims(token).get("member_number", String.class);
     }
 
     public Role extractRole(String token) {
-        int roleOrdinal = extractAllClaims(token).get("role", Integer.class);
-        return Role.values()[roleOrdinal];
+        String roleName = extractAllClaims(token).get("role", String.class);
+        return Role.valueOf(roleName);
     }
+
+    public String extractUsername(String token) {
+        return extractAllClaims(token).get("username", String.class);
+    }
+
 
     private boolean isTokenExpired(String token) {
         Date expiration = extractAllClaims(token).getExpiration();

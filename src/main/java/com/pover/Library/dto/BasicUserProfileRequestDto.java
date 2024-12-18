@@ -16,4 +16,7 @@ public class BasicUserProfileRequestDto {
     @NotBlank
     private String email;
 
+    private String personal_number;
+    private String password;
+
 }

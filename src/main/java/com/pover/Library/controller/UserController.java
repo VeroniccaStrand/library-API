@@ -69,35 +69,6 @@ public class UserController {
         return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
     }
 
-//    @Operation(
-//            summary = "Login user",
-//            description = "Authenticates a user based on member number and password, returning a token if successful."
-//    )
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
-//        String memberNumber = credentials.get("member_number");
-//        String password = credentials.get("password");
-//
-//        if (memberNumber == null || password == null) {
-//            Map<String, String> errorResponse = new HashMap<>();
-//            errorResponse.put("error", "Missing required fields: member mumber and/or password");
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-//        }
-//
-//        Optional<String> token = userService.authenticateUser(memberNumber, password);
-//        return token
-//                .map(t -> {
-//                    Map<String, String> response = new HashMap<>();
-//                    response.put("token", t);
-//                    return ResponseEntity.ok(response);
-//                })
-//                .orElseGet(() -> {
-//                    Map<String, String> errorResponse = new HashMap<>();
-//                    errorResponse.put("error", "Invalid credentials");
-//                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-//                });
-//    }
-
     @Operation(
             summary = "Login user",
             description = "Authenticates a user based on member number, password, and role, returning a token if successful."
@@ -131,32 +102,33 @@ public class UserController {
     // user's id isn't needed because of token
     // the profile of the currently authenticated user will be returned
 
-//    @Operation(
-//            summary = "Get user profile",
-//            description = "Retrieves the profile of the currently authenticated user based on the provided JWT token."
-//    )
-//
-//    @GetMapping("/profile")
-//    public ResponseEntity<BasicUserProfileResponseDto> getUserProfile(@RequestHeader("Authorization") String token) {
-//
-//        String jwtToken = token.substring(7);
-//        BasicUserProfileResponseDto userProfile = userService.getUserProfile(jwtToken);
-//        return ResponseEntity.ok(userProfile);
-//    }
+    @Operation(
+            summary = "Get user profile",
+            description = "Retrieves the profile of the currently authenticated user based on the provided JWT token."
+    )
 
-//    @Operation(
-//            summary = "Update user profile",
-//            description = "Updates the profile of the currently authenticated user based on the provided JWT token and new data."
-//    )
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/profile")
+    public ResponseEntity<BasicUserProfileResponseDto> getUserProfile(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.replace("Bearer ", "");
+        BasicUserProfileResponseDto userProfile = userService.getUserProfile(token);
+        return ResponseEntity.ok(userProfile);
+    }
 
-//    @PutMapping("/profile")
-//    public ResponseEntity<BasicUserProfileResponseDto> updateUserProfile(@RequestHeader("Authorization") String token,
-//                                                                         @RequestBody BasicUserProfileRequestDto basicUserProfileRequestDto) {
-//
-//        String jwtToken = token.substring(7);
-//        BasicUserProfileResponseDto updatedProfile = userService.updateUserProfile(jwtToken, basicUserProfileRequestDto);
-//        return ResponseEntity.ok(updatedProfile);
-//    }
+
+    @Operation(
+            summary = "Update user profile",
+            description = "Updates the profile of the currently authenticated user based on the provided JWT token and new data."
+    )
+
+    @PutMapping("/profile")
+    public ResponseEntity<BasicUserProfileResponseDto> updateUserProfile(@RequestHeader("Authorization") String token,
+                                                                         @RequestBody BasicUserProfileRequestDto basicUserProfileRequestDto) {
+
+        String jwtToken = token.substring(7);
+        BasicUserProfileResponseDto updatedProfile = userService.updateUserProfile(jwtToken, basicUserProfileRequestDto);
+        return ResponseEntity.ok(updatedProfile);
+    }
 
     @Operation(
             summary = "Logout user",

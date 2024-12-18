@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -21,6 +22,7 @@ import java.util.List;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    @Autowired
     private final JwtUtil jwtUtil;
 
 
@@ -45,30 +47,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = header.substring(7);
 
         try {
-            // få ut info from token
+
             Claims claims = jwtUtil.extractAllClaims(token);
             String username = claims.get("username", String.class);
             String memberNumber = claims.get("member_number", String.class);
-            Role role = jwtUtil.extractRole(token);
+            Role role = Role.valueOf(claims.get("role", String.class));
 
-            String principal = username != null ? username : memberNumber;
 
-            // kollar om token matchar principal
-            if (jwtUtil.isTokenValid(token, principal)) {
-                // Skapar authentication object
+            if (jwtUtil.validateToken(token, username, memberNumber)) {
+
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        principal,
+                        username != null ? username : memberNumber,
                         null,
                         List.of(new SimpleGrantedAuthority("ROLE_" + role.name()))
                 );
-                // här kopplas ytterligare information om HTTP-förfrågan
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid or expired JWT token.");
-            return;
+
+            System.err.println("JWT Token Validation Error: " + e.getMessage());
         }
 
 

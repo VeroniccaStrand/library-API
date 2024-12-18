@@ -108,46 +108,53 @@ public class UserService {
 
     // USER PROFILE
     // to check and update info about user
-//    public BasicUserProfileResponseDto getUserProfile(String token) {
-//        String memberNumber = jwtUtil.extractMemberNumber(token);
-//
-//        User user = userRepository.findByMemberNumber(memberNumber)
-//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-//
-//        List<LoanResponseDto> activeLoans = user.getLoans().stream()
-//                .filter(loan -> loan.getReturnedDate() == null)
-//                .map(LoanResponseDto::new)
-//                .collect(Collectors.toList());
-//
-//        return new BasicUserProfileResponseDto(user.getFirst_name(), user.getLast_name(), user.getEmail(), activeLoans);
-//    }
+    public BasicUserProfileResponseDto getUserProfile(String token) {
+        String memberNumber = jwtUtil.extractMemberNumber(token);
 
-//    @Transactional
-//    public BasicUserProfileResponseDto updateUserProfile(String token, BasicUserProfileRequestDto basicUserProfileRequestDto) {
-//        String memberNumber = jwtUtil.extractMemberNumber(token);
-//
-//        User user = userRepository.findByMemberNumber(memberNumber)
-//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-//
-//        if (basicUserProfileRequestDto.getFirst_name() != null) {
-//            user.setFirst_name(basicUserProfileRequestDto.getFirst_name());
-//        }
-//        if (basicUserProfileRequestDto.getLast_name() != null) {
-//            user.setLast_name(basicUserProfileRequestDto.getLast_name());
-//        }
-//        if (basicUserProfileRequestDto.getEmail() != null) {
-//            user.setEmail(basicUserProfileRequestDto.getEmail());
-//        }
-//
-//        userRepository.save(user);
-//
-//        List<LoanResponseDto> activeLoans = user.getLoans().stream()
-//                .filter(loan -> loan.getReturnedDate() == null)
-//                .map(LoanResponseDto::new)
-//                .collect(Collectors.toList());
-//
-//        return new BasicUserProfileResponseDto(user.getFirst_name(), user.getLast_name(), user.getEmail(), activeLoans);
-//    }
+        User user = userRepository.findByMemberNumber(memberNumber)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        List<LoanResponseDto> activeLoans = user.getLoans().stream()
+                .filter(loan -> loan.getReturnedDate() == null)
+                .map(LoanResponseDto::new)
+                .collect(Collectors.toList());
+
+        return new BasicUserProfileResponseDto(user.getFirst_name(), user.getLast_name(), user.getEmail(), activeLoans);
+    }
+
+    @Transactional
+    public BasicUserProfileResponseDto updateUserProfile(String token, BasicUserProfileRequestDto basicUserProfileRequestDto) {
+        String memberNumber = jwtUtil.extractMemberNumber(token);
+
+        User user = userRepository.findByMemberNumber(memberNumber)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (basicUserProfileRequestDto.getPersonal_number() != null) {
+            throw new IllegalArgumentException("You don't have permission to change your personal number");
+        }
+        if (basicUserProfileRequestDto.getPassword() != null) {
+            throw new IllegalArgumentException("You don't have permission to change your password");
+        }
+
+        if (basicUserProfileRequestDto.getFirst_name() != null) {
+            user.setFirst_name(basicUserProfileRequestDto.getFirst_name());
+        }
+        if (basicUserProfileRequestDto.getLast_name() != null) {
+            user.setLast_name(basicUserProfileRequestDto.getLast_name());
+        }
+        if (basicUserProfileRequestDto.getEmail() != null) {
+            user.setEmail(basicUserProfileRequestDto.getEmail());
+        }
+
+        userRepository.save(user);
+
+        List<LoanResponseDto> activeLoans = user.getLoans().stream()
+                .filter(loan -> loan.getReturnedDate() == null)
+                .map(LoanResponseDto::new)
+                .collect(Collectors.toList());
+
+        return new BasicUserProfileResponseDto(user.getFirst_name(), user.getLast_name(), user.getEmail(), activeLoans);
+    }
 
     // USER PROFILE CHECK AND UPDATE BY ADMIN
     // can be accessed only by admin
