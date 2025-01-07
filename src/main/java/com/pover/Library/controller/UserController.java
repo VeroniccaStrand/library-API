@@ -121,6 +121,7 @@ public class UserController {
             description = "Updates the profile of the currently authenticated user based on the provided JWT token and new data."
     )
 
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/profile")
     public ResponseEntity<BasicUserProfileResponseDto> updateUserProfile(@RequestHeader("Authorization") String token,
                                                                          @RequestBody BasicUserProfileRequestDto basicUserProfileRequestDto) {
@@ -135,6 +136,7 @@ public class UserController {
             description = "Logs out the currently authenticated user based on the provided JWT token."
     )
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
