@@ -5,6 +5,7 @@ import com.pover.Library.service.AuthorService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,18 +28,21 @@ public class AuthorController {
         return new ResponseEntity<>(author, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
     @PostMapping
     public ResponseEntity<Author> createAuthor(@Valid @RequestBody Author author) {
         Author createdAuthor = authorService.createAuthor(author);
         return new ResponseEntity<>(createdAuthor, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
     @PutMapping("/{id}")
     public ResponseEntity<Author> updateAuthor(@PathVariable Long id, @Valid @RequestBody Author authorDetails) {
         Author updatedAuthor = authorService.updateAuthor(id, authorDetails);
         return new ResponseEntity<>(updatedAuthor, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAuthor(@PathVariable Long id) {
         authorService.deleteAuthor(id);

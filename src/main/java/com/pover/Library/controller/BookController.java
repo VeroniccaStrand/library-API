@@ -7,6 +7,7 @@ import com.pover.Library.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,12 +43,14 @@ public class BookController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
     @PostMapping("/add")
     public ResponseEntity<BookResponseDto> addBook( @RequestBody BookRequestDto bookRequestDto) {
         BookResponseDto bookResponseDto = bookService.addBook(bookRequestDto);
         return new ResponseEntity<>(bookResponseDto, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteBook(@PathVariable Long id) {
         if (bookRepository.existsById(id)) {
