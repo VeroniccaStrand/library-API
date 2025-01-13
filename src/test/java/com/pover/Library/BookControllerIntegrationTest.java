@@ -4,6 +4,7 @@ import com.pover.Library.model.Author;
 import com.pover.Library.model.Book;
 import com.pover.Library.repository.AuthorRepository;
 import com.pover.Library.repository.BookRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Transactional
 @SpringBootTest
 @AutoConfigureMockMvc
 public class BookControllerIntegrationTest {

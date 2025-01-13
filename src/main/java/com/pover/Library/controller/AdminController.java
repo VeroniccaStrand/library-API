@@ -27,7 +27,6 @@ public class AdminController {
     }
 
 
-
     @Operation(summary = "Create a new Admin", description = "Creates a new admin user with a unique username")
     @PostMapping("/create")
     public ResponseEntity<AdminResponseDto> create(@Valid @RequestBody AdminRequestDto adminRequestDto){
