@@ -90,6 +90,34 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
+    public BookResponseDto updateBook(Long bookId, @Valid BookRequestDto bookRequestDto) {
+        Book existingBook = bookRepository.findById(bookId)
+                .orElseThrow(() -> new IllegalArgumentException("Book not found with ID: " + bookId));
+
+        if (bookRequestDto.getTitle() != null) {
+            existingBook.setTitle(bookRequestDto.getTitle());
+        }
+        if (bookRequestDto.getPublication_year() != 0) {
+            existingBook.setPublication_year(bookRequestDto.getPublication_year());
+        }
+        if (bookRequestDto.getAuthor_id() != null) {
+            Author author = authorService.findById(bookRequestDto.getAuthor_id())
+                    .orElseThrow(() -> new IllegalArgumentException("Author not found with ID: " + bookRequestDto.getAuthor_id()));
+            existingBook.setAuthor(author);
+        }
+        if (bookRequestDto.getGenre_id() != null) {
+            Set<Genre> genres = bookRequestDto.getGenre_id().stream()
+                    .map(id -> genreService.findById(id)
+                            .orElseThrow(() -> new IllegalArgumentException("Genre not found with ID: " + id)))
+                    .collect(Collectors.toSet());
+            existingBook.setGenres(genres);
+        }
+        // existingBook.setAvailable(bookRequestDto.isAvailable());
+
+        Book updatedBook = bookRepository.save(existingBook);
+
+        return convertToBookResponseDto(updatedBook);
+    }
 
     public List<BookResponseDto> searchBooks(String query) {
 

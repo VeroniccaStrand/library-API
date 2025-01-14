@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/book")
+@RequestMapping("/api/books")
 public class BookController {
     private final BookService bookService;
     private final BookRepository bookRepository;
@@ -23,7 +23,7 @@ public class BookController {
         this.bookRepository = bookRepository;
     }
 
-    @GetMapping("/get")
+    @GetMapping
     public ResponseEntity<List<BookResponseDto>> getBooks() {
         List<BookResponseDto> books = bookService.getBooks();
         if (books.isEmpty()) {
@@ -33,7 +33,7 @@ public class BookController {
         }
     }
 
-    @GetMapping("/get/{title}")
+    @GetMapping("/{title}")
     public ResponseEntity<List<BookResponseDto>> getBooksByTitle(@PathVariable String title) {
         List<BookResponseDto> books = bookService.getBooksByTitle(title);
         if (books.isEmpty()) {
@@ -44,14 +44,14 @@ public class BookController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<BookResponseDto> addBook( @RequestBody BookRequestDto bookRequestDto) {
         BookResponseDto bookResponseDto = bookService.addBook(bookRequestDto);
         return new ResponseEntity<>(bookResponseDto, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteBook(@PathVariable Long id) {
         if (bookRepository.existsById(id)) {
             bookRepository.deleteById(id);
@@ -61,7 +61,14 @@ public class BookController {
         }
     }
 
-    @GetMapping("/get/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<BookResponseDto> updateBook(@PathVariable Long id, @Valid @RequestBody BookRequestDto bookRequestDto) {
+        BookResponseDto updatedBook = bookService.updateBook(id, bookRequestDto);
+        return ResponseEntity.ok(updatedBook);
+    }
+
+    @GetMapping("/search")
     public List<BookResponseDto> searchBooks(@RequestParam("query") String query) {
         return bookService.searchBooks(query);
     }

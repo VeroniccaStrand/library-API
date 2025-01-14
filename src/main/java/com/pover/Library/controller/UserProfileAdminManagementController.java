@@ -10,6 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 // ADMIN'S AND LIBRARIAN'S ACCESS TO USER'S PROFILE
 
 @RestController
@@ -39,12 +41,31 @@ public class UserProfileAdminManagementController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
     @Operation(
             summary = "Update user profile by member number",
-            description = "Updates the profile of a user by their member number. Accessible to ADMIN and LIBRARIAN roles."
+            description = "Updates the profile of a user by their personal number. Accessible to ADMIN and LIBRARIAN roles."
     )
     @PutMapping
-    public ResponseEntity<ExtendedUserProfileResponseDto> updateUserProfileByMemberNumber(@PathVariable String personalNumber, @RequestBody @Validated(UpdateValidationGroup.class) ExtendedUserProfileRequestDto extendedUserProfileRequestDto) {
+    public ResponseEntity<?> updateUserProfileByPersonalNumber(@PathVariable String personalNumber, @RequestBody @Validated(UpdateValidationGroup.class) ExtendedUserProfileRequestDto extendedUserProfileRequestDto) {
+//        extendedUserProfileRequestDto.setPersonal_number(personalNumber);
+//        try {
+//            ExtendedUserProfileResponseDto updatedProfile = userService.updateUserProfileByPersonalNumber(extendedUserProfileRequestDto);
+//            return ResponseEntity.ok(updatedProfile);
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+//        }
+
+        if (extendedUserProfileRequestDto.getPersonal_number() != null
+                && !extendedUserProfileRequestDto.getPersonal_number().equals(personalNumber)) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", "The personal_number cannot be modified"
+            ));
+        }
+        // Explicitly set the personal number from the URL into the DTO
         extendedUserProfileRequestDto.setPersonal_number(personalNumber);
-        ExtendedUserProfileResponseDto updatedProfile = userService.updateUserProfileByPersonalNumber(extendedUserProfileRequestDto);
-        return ResponseEntity.ok(updatedProfile);
+        try {
+            ExtendedUserProfileResponseDto updatedProfile = userService.updateUserProfileByPersonalNumber(extendedUserProfileRequestDto);
+            return ResponseEntity.ok(updatedProfile);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }

@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Inaktivera CSRF (ok för API:er)
                 .authorizeHttpRequests(auth -> auth
                                 // public endpoints
-                                .requestMatchers("/api/admin/login", "/api/user/login", "/api/book/get", "/api/book/get/**").permitAll()
+                                .requestMatchers("/api/admin/login", "/api/user/login", "/api/books", "/api/books/**").permitAll()
                                 // endpoints för admin
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 // endpoints för user

@@ -59,8 +59,13 @@ public class LoanController {
     )
     @PutMapping("/return/{loanId}")
     @ResponseStatus(HttpStatus.OK)
-    public LoanResponseDto returnBook(@PathVariable Long loanId) {
-        return loanService.returnBook(loanId);
+    public ResponseEntity<String> returnBook(@PathVariable Long loanId) {
+        try {
+            String responseMessage = loanService.returnBook(loanId);
+            return ResponseEntity.ok(responseMessage);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @Operation(

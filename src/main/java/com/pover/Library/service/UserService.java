@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -159,6 +160,7 @@ public class UserService {
     // USER PROFILE CHECK AND UPDATE BY ADMIN
     // can be accessed only by admin
     public ExtendedUserProfileResponseDto getUserProfileByPersonalNumber(String personalNumber) {
+
         User user = userRepository.findByPersonalNumber(personalNumber)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -173,21 +175,27 @@ public class UserService {
     @Transactional
     public ExtendedUserProfileResponseDto updateUserProfileByPersonalNumber(ExtendedUserProfileRequestDto extendedUserProfileRequestDto) {
 
-
         String personalNumber = extendedUserProfileRequestDto.getPersonal_number();
         String memberNumber = extendedUserProfileRequestDto.getMember_number();
 
         User user = userRepository.findByPersonalNumber(personalNumber)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (!user.getPersonalNumber().equals(personalNumber)) {
-            throw new IllegalArgumentException("Personal number cannot be changed.");
+        List<String> restrictedFields = new ArrayList<>();
+
+        if (personalNumber != null && !user.getPersonalNumber().equals(personalNumber)) {
+            restrictedFields.add("personal_number");
         }
 
-        if (user.getMemberNumber() != null && !user.getMemberNumber().equals(memberNumber)) {
-            throw new IllegalArgumentException("Member number cannot be changed.");
+        if (memberNumber != null && !user.getMemberNumber().equals(memberNumber)) {
+            restrictedFields.add("member_number");
         }
 
+        if (!restrictedFields.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "The following fields cannot be modified: " + String.join(", ", restrictedFields)
+            );
+        }
 
         if (extendedUserProfileRequestDto.getFirst_name() != null && !extendedUserProfileRequestDto.getFirst_name().isBlank()) {
             user.setFirst_name(extendedUserProfileRequestDto.getFirst_name());

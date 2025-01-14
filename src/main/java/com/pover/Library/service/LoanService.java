@@ -74,9 +74,13 @@ LoanService {
     }
 
     @Transactional
-    public LoanResponseDto returnBook(Long loanId) {
+    public String returnBook(Long loanId) {
 
         Loan loan = loanRepository.findById(loanId).orElseThrow(() -> new IllegalArgumentException("Loan not found"));
+
+        if (loan.getReturnedDate() != null) {
+            return "The book '" + loan.getBook().getTitle() + " wasn't borrowed";
+        }
 
         loan.setReturnedDate(LocalDate.now());
 
@@ -91,7 +95,7 @@ LoanService {
         }
 
         loanRepository.save(loan);
-        return new LoanResponseDto(loan);
+        return "The book '" + loan.getBook().getTitle() + "' is returned.";
     }
 
 
