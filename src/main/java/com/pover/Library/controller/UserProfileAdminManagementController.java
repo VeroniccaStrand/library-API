@@ -45,13 +45,6 @@ public class UserProfileAdminManagementController {
     )
     @PutMapping
     public ResponseEntity<?> updateUserProfileByPersonalNumber(@PathVariable String personalNumber, @RequestBody @Validated(UpdateValidationGroup.class) ExtendedUserProfileRequestDto extendedUserProfileRequestDto) {
-//        extendedUserProfileRequestDto.setPersonal_number(personalNumber);
-//        try {
-//            ExtendedUserProfileResponseDto updatedProfile = userService.updateUserProfileByPersonalNumber(extendedUserProfileRequestDto);
-//            return ResponseEntity.ok(updatedProfile);
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-//        }
 
         if (extendedUserProfileRequestDto.getPersonal_number() != null
                 && !extendedUserProfileRequestDto.getPersonal_number().equals(personalNumber)) {
@@ -59,7 +52,7 @@ public class UserProfileAdminManagementController {
                     "error", "The personal_number cannot be modified"
             ));
         }
-        // Explicitly set the personal number from the URL into the DTO
+
         extendedUserProfileRequestDto.setPersonal_number(personalNumber);
         try {
             ExtendedUserProfileResponseDto updatedProfile = userService.updateUserProfileByPersonalNumber(extendedUserProfileRequestDto);

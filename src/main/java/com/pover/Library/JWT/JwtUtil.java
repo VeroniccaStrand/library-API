@@ -67,18 +67,6 @@ public class JwtUtil {
                 .getBody();
     }
 
-    // är token giltig? tillhör token rätt användare?
-//    public boolean isTokenValid(String token, String username) {
-//        try {
-//            final String tokenUsername = extractAllClaims(token).getSubject();
-//            log.info("Extracted username: {}", tokenUsername);
-//            return username.equals(tokenUsername) && !isTokenExpired(token);
-//        } catch (Exception e) {
-//            log.error("Token validation failed: {}", e.getMessage());
-//            return false;
-//        }
-//    }
-
     public boolean validateToken(String token, String username, String memberNumber) {
         final String tokenUsername = extractUsername(token);
         final String tokenMemberNumber = extractMemberNumber(token);
