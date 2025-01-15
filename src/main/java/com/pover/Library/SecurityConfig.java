@@ -21,6 +21,7 @@ public class SecurityConfig {
 
 
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
@@ -30,16 +31,18 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/admin/login", "/api/user/login").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/user/**").authenticated()
-                        .requestMatchers("/api/book/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/book/public/**").permitAll()
+                        .requestMatchers(
+                                "/api/admin/login",
+                                "/api/user/login",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/api/book/public/**"
+                        ).permitAll()
+                        .requestMatchers("/api/admin/**", "/api/book/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .requiresChannel(channel -> channel
-                        .anyRequest().requiresSecure()
-                )
+                .requiresChannel(channel -> channel.anyRequest().requiresSecure())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
