@@ -37,6 +37,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/book/public/**").permitAll()
                         .anyRequest().authenticated()
                 )
+                .requiresChannel(channel -> channel
+                        .anyRequest().requiresSecure()
+                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
