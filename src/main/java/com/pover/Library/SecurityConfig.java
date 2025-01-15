@@ -30,17 +30,26 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Inaktivera CSRF (ok för API:er)
                 .authorizeHttpRequests(auth -> auth
-                                // public endpoints
-                                .requestMatchers("/api/admin/login", "/api/user/login", "/api/books", "/api/books/**").permitAll()
-                                // endpoints för admin
-                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                // endpoints för user
-                                .requestMatchers("/api/user/**").authenticated()
-                                .anyRequest().authenticated()
-                )
+                        // public endpoints
+                        .requestMatchers(
+                                "/api/admin/login",
+                                "/api/user/login",
+                                "/api/books",
+                                "/api/books/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        // endpoints för admin
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // endpoints för user
+                        .requestMatchers("/api/user/**").authenticated()
+                        .anyRequest().authenticated()
+                ).requiresChannel(channel -> channel        .anyRequest().requiresSecure())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+
 
         return http.build(); // skapar (bygger) configen
     }
